@@ -1,24 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Decrypt</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Decrypt Text — SecureVault{% endblock %}
 
-<h2>Decrypt Text</h2>
+{% block content %}
+<div class="page">
+  <div class="card card-wide animate-fade-up">
+    <div class="page-header">
+      <a href="/dashboard" class="back-btn" title="Back to Dashboard">←</a>
+      <div>
+        <h2>🔓 Decrypt Text</h2>
+        <p>Paste a cipher text below to recover the original message</p>
+      </div>
+    </div>
 
-<form method="POST">
-    <input type="text" name="text" placeholder="Enter encrypted text" required><br><br>
-    <button type="submit">Decrypt</button>
-</form>
+    {% if error %}
+    <div class="alert alert-error" id="decrypt-error">⚠️ {{ error }}</div>
+    {% endif %}
 
-{% if result %}
-    <h3>Decrypted Text:</h3>
-    <p>{{ result }}</p>
-{% endif %}
+    <form method="POST" id="decrypt-form">
+      <div class="form-group">
+        <label for="text">Cipher Text</label>
+        <textarea id="text" name="text"
+                  placeholder="Paste the Base64-encoded encrypted text here..."
+                  required rows="5"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" id="decrypt-submit">
+        🔓 Decrypt Now
+      </button>
+    </form>
 
-<br>
-<a href="/dashboard">Back</a>
+    {% if result %}
+    <div class="result-box" style="border-color: rgba(0,212,255,0.25);
+                                    background: rgba(0,212,255,0.05);" id="decrypt-result">
+      <h3 style="color: var(--accent-2);">✅ Decrypted Successfully</h3>
+      <button class="copy-btn" id="copy-btn" onclick="copyResult()">Copy</button>
+      <p id="plain-output" style="font-size:0.95rem; color:var(--text-primary);
+                                   font-family:inherit; word-break:break-word;">
+        {{ result }}
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script>
+function copyResult() {
+  const text = document.getElementById('plain-output').textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+{% endblock %}

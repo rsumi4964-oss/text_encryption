@@ -1,14 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Home</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}SecureVault — Military-Grade Text Encryption{% endblock %}
 
-<h1>🔐 Secure Encryption System</h1>
+{% block content %}
+<div class="page">
+  <div class="hero animate-fade-up">
+    <div class="hero-badge">🛡️ RSA-2048 Encryption</div>
+    <h1>Secure Your<br>Messages Today</h1>
+    <p>
+      SecureVault uses military-grade RSA-2048 asymmetric encryption to protect
+      your sensitive text. Register, login, and start encrypting in seconds.
+    </p>
+    <div class="hero-buttons">
+      <a href="/register" class="btn btn-primary" id="get-started-btn">Get Started Free</a>
+      <a href="/login"    class="btn btn-outline"  id="sign-in-btn">Sign In</a>
+    </div>
+  </div>
 
-<a href="/login">Login</a><br><br>
-<a href="/register">Register</a>
-
-</body>
-</html>
+  <div class="features animate-fade-up delay-2">
+    <div class="feature-card">
+      <span class="icon">🔑</span>
+      <h3>RSA-2048 Keys</h3>
+      <p>Asymmetric public/private key encryption — the same standard used in banks.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">👤</span>
+      <h3>User Accounts</h3>
+      <p>Secure registration and login with bcrypt-hashed passwords stored safely.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">📊</span>
+      <h3>History Reports</h3>
+      <p>View, manage, and export all your past encryptions in a detailed report.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">⚡</span>
+      <h3>Instant Results</h3>
+      <p>Encrypt and decrypt any text in milliseconds with one click.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
