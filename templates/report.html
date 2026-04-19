@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Encryption Report — SecureVault{% endblock %}
+
+{% block content %}
+<div class="page" style="align-items:stretch; max-width:1150px; margin:0 auto; width:100%;">
+  <div class="card card-full animate-fade-up" style="max-width:none;">
+
+    <!-- Header -->
+    <div class="report-toolbar">
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <a href="/dashboard" class="back-btn">←</a>
+        <div>
+          <h2>📊 Encryption Report</h2>
+          <p style="color:var(--text-secondary); font-size:0.85rem;">
+            Full encryption history &amp; analytics
+          </p>
+        </div>
+      </div>
+      <div class="btn-group">
+        <a href="/report/export" class="btn btn-success btn-sm" id="export-csv-btn">
+          ⬇ Export CSV
+        </a>
+        <button class="btn btn-secondary btn-sm" onclick="window.print()" id="print-btn">
+          🖨 Print Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-bar animate-fade-up delay-1">
+      <div class="stat-item">
+        <div class="stat-value">{{ total_count }}</div>
+        <div class="stat-label">Total Encryptions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">{{ unique_users }}</div>
+        <div class="stat-label">Unique Users</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">{{ user_count }}</div>
+        <div class="stat-label">Your Encryptions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" style="font-size:1.3rem;">RSA</div>
+        <div class="stat-label">Algorithm Used</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" style="font-size:1.3rem;">2048</div>
+        <div class="stat-label">Key Bits</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Filter label -->
+    <div style="margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem;">
+      <span style="font-size:0.8rem; color:var(--text-secondary);">Showing all records</span>
+      <span class="badge badge-user">{{ current_user }}</span>
+    </div>
+
+    <!-- Table -->
+    {% if messages %}
+    <div class="table-wrapper animate-fade-up delay-2">
+      <table id="report-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>Original Text</th>
+            <th>Cipher (Preview)</th>
+            <th>Timestamp</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          {% for msg in messages %}
+          <tr id="row-{{ msg.id }}">
+            <td style="color:var(--text-muted); font-size:0.8rem;">{{ msg.id }}</td>
+            <td><span class="badge badge-user">{{ msg.user }}</span></td>
+            <td>
+              <span title="{{ msg.original_text }}"
+                    style="max-width:180px; overflow:hidden; text-overflow:ellipsis;
+                           white-space:nowrap; display:block; color:var(--text-primary);">
+                {{ msg.original_text if msg.original_text else '—' }}
+              </span>
+            </td>
+            <td>
+              <span class="mono" title="{{ msg.data }}">
+                {{ msg.data[:48] }}…
+              </span>
+            </td>
+            <td><span class="timestamp">{{ msg.timestamp }}</span></td>
+            <td>
+              <button class="btn btn-danger btn-sm"
+                      id="delete-{{ msg.id }}"
+                      onclick="deleteRow({{ msg.id }}, this)">
+                🗑 Delete
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:1rem; font-size:0.8rem; color:var(--text-muted);">
+      {{ messages|length }} record{{ 's' if messages|length != 1 else '' }} found
+    </div>
+
+    {% else %}
+    <div class="empty-state animate-fade-up delay-2">
+      <span class="empty-icon">🔒</span>
+      <h3 style="margin-bottom:0.5rem; color:var(--text-primary);">No Records Yet</h3>
+      <p style="font-size:0.875rem;">Start encrypting messages and they'll appear here.</p>
+      <a href="/encrypt" class="btn btn-primary" style="margin-top:1.25rem; width:auto;"
+         id="start-encrypt-btn">Start Encrypting</a>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function deleteRow(id, btn) {
+  if (!confirm('Delete this encryption record?')) return;
+
+  btn.disabled = true;
+  btn.textContent = '⏳';
+
+  try {
+    const resp = await fetch(`/report/delete/${id}`, { method: 'POST' });
+    const data = await resp.json();
+
+    if (data.success) {
+      const row = document.getElementById(`row-${id}`);
+      row.style.transition = 'opacity 0.35s, transform 0.35s';
+      row.style.opacity = '0';
+      row.style.transform = 'translateX(20px)';
+      setTimeout(() => row.remove(), 350);
+    } else {
+      btn.disabled = false;
+      btn.textContent = '🗑 Delete';
+      alert('Failed to delete record.');
+    }
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = '🗑 Delete';
+    alert('An error occurred.');
+  }
+}
+</script>
+{% endblock %}

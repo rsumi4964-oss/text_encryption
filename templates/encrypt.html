@@ -1,24 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Encrypt</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Encrypt Text — SecureVault{% endblock %}
 
-<h2>Encrypt Text</h2>
+{% block content %}
+<div class="page">
+  <div class="card card-wide animate-fade-up">
+    <div class="page-header">
+      <a href="/dashboard" class="back-btn" title="Back to Dashboard">←</a>
+      <div>
+        <h2>🔒 Encrypt Text</h2>
+        <p>Enter plain text below — it will be encrypted using RSA-2048</p>
+      </div>
+    </div>
 
-<form method="POST">
-    <input type="text" name="text" placeholder="Enter text" required><br><br>
-    <button type="submit">Encrypt</button>
-</form>
+    <form method="POST" id="encrypt-form">
+      <div class="form-group">
+        <label for="text">Plain Text</label>
+        <textarea id="text" name="text" placeholder="Type or paste your secret message here..."
+                  required rows="5">{% if result %}{% endif %}</textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" id="encrypt-submit">
+        🔒 Encrypt Now
+      </button>
+    </form>
 
-{% if result %}
-    <h3>Encrypted Text:</h3>
-    <p>{{ result }}</p>
-{% endif %}
+    {% if result %}
+    <div class="result-box" id="encrypt-result">
+      <h3>✅ Encrypted Successfully</h3>
+      <button class="copy-btn" id="copy-btn" onclick="copyResult()">Copy</button>
+      <p class="cipher-text" id="cipher-output">{{ result }}</p>
+    </div>
+    <div style="margin-top:1rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+      <a href="/decrypt" class="btn btn-secondary btn-sm" id="go-decrypt">🔓 Decrypt This</a>
+      <a href="/report"  class="btn btn-secondary btn-sm" id="go-report">📊 View History</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
 
-<br>
-<a href="/dashboard">Back</a>
-
-</body>
-</html>
+{% block scripts %}
+<script>
+function copyResult() {
+  const text = document.getElementById('cipher-output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+{% endblock %}
